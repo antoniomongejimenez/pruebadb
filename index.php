@@ -11,18 +11,34 @@
     require 'auxiliar.php';
 
     $pdo = conectar();
-    $sent = $pdo->query('SELECT COUNT(*)
+
+
+    $nombre = (isset($_GET['nombre'])) ? trim($_GET['nombre']) : null;
+
+    $sent = $pdo->query("SELECT COUNT(*)
                            FROM emple e
                       LEFT JOIN depart d
-                             ON e.depart_id = d.id');
+                             ON e.depart_id = d.id
+                          WHERE nombre ILIKE '%$nombre%'");
     $count = $sent->fetchColumn();
 
-    $sent = $pdo->query('SELECT *
+    $sent = $pdo->query("SELECT *
                            FROM emple e
                       LEFT JOIN depart d
-                             ON e.depart_id = d.id');
+                             ON e.depart_id = d.id
+                          WHERE nombre ILIKE '%$nombre%'");
 
     ?>
+
+    
+
+    <form action="">
+        <div>
+            <label for="nombre">Nombre:</label>
+            
+            <input type="text" id="nombre" name="nombre" value = "<?= $nombre ?>">
+        </div>
+    </form>
 
     <table border="1">
         <thead>
