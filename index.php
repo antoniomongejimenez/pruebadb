@@ -12,17 +12,40 @@
 
     $nombre = (isset($_GET['nombre'])) ? trim($_GET['nombre']) : null;
     $denominacion = (isset($_GET['denominacion'])) ? trim($_GET['denominacion']) : null;
+    $salario = (isset($_GET['salario'])) ? trim($_GET['salario']) : null;
 
     $pdo = conectar();
 
     $query = "FROM emple e
          LEFT JOIN depart d
-                ON e.depart_id = d.id
-             WHERE preparar(nombre) LIKE preparar('%$nombre%')
-               AND preparar(denominacion) LIKE preparar('%$denominacion%')";
-    $sent = $pdo->query("SELECT COUNT(*) $query");
+                ON e.depart_id = d.id";
+
+    $where = [];
+    $execute = [];
+    if (isset($nombre) && $nombre !== '') {
+        $where[] = 'preparar(nombre) LIKE preparar(:nombre)';
+        $execute[':nombre'] = "%$nombre%";
+    }
+
+    if (isset($denominacion) && $denominacion !== '') {
+        $where[] = 'preparar(denominacion) LIKE preparar(:denominacion)';
+        $execute[':denominacion'] = "%$denominacion%";
+    }
+
+    if (isset($salario) && $salario !== '') {
+        $where[] = 'salario = :salario';
+        $execute[':salario'] = $salario;
+    }
+    if (!empty($where)) {
+        $query .= ' WHERE ' .  implode(' AND ', $where);
+    }
+    
+
+    $sent = $pdo->prepare("SELECT COUNT(*) $query");
+    $sent->execute($execute);
     $count = $sent->fetchColumn();
-    $sent = $pdo->query("SELECT * $query");
+    $sent = $pdo->prepare("SELECT * $query");
+    $sent->execute($execute);
     ?>
     <div>
         <form action="" method="GET">
@@ -33,6 +56,9 @@
                 <label for="denominacion">Departamento: </label>
                 <input id="denominacion" type="text" name="denominacion"
                        value="<?= $denominacion ?>">
+                <label for="salario">Salario: </label>
+                <input id="salario" type="text" name="salario"
+                       value="<?= $salario ?>">
             </div>
             <div>
                 <button type="submit">Filtrar</button>
@@ -44,20 +70,20 @@
         <table border="1">
             <thead>
                 <th>Nombre</th>
-            <th>Fecha de alta</th>
-            <th>Salario</th>
-            <th>Departamento</th>
-            <th>Localidad</th>
-        </thead>
-        <tbody>
-            <?php foreach ($sent as $fila): ?>
-                <tr>
-                    <td><?= $fila['nombre'] ?></td>
-                    <td><?= $fila['fecha_alt'] ?></td>
-                    <td><?= $fila['salario'] ?></td>
-                    <td><?= $fila['denominacion'] ?></td>
-                    <td><?= $fila['localidad'] ?></td>
-                </tr>
+                <th>Fecha de alta</th>
+                <th>Salario</th>
+                <th>Departamento</th>
+                <th>Localidad</th>
+            </thead>
+            <tbody>
+                <?php foreach ($sent as $fila): ?>
+                    <tr>
+                        <td><?= $fila['nombre'] ?></td>
+                        <td><?= $fila['fecha_alt'] ?></td>
+                        <td><?= $fila['salario'] ?></td>
+                        <td><?= $fila['denominacion'] ?></td>
+                        <td><?= $fila['localidad'] ?></td>
+                    </tr>
                 <?php endforeach ?>
             </tbody>
             <tfoot>
