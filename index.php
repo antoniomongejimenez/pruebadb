@@ -1,3 +1,4 @@
+<?php session_start() ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,9 +10,29 @@
 <body>
     <?php require 'auxiliar.php' ?>
 
-    <form action="expirar_cookie.php">
+    <?php cabecera() ?>
+
+    <?php if (isset($_SESSION['mensaje_error'])): ?>
+        <h2><?= $_SESSION['mensaje_error'] ?></h2>
+        <?php unset($_SESSION['mensaje_error']) ?>
+    <?php endif ?>
+
+    <?php
+    if (!isset($_SESSION['carrito'])) {
+        $_SESSION['carrito'] = [];
+    }
+
+    if (isset($_SESSION['carrito'])) {
+        print_r($_SESSION['carrito']); ?>
+        <form action="vaciar.php">
+            <button type="submit">Vaciar carrito</button>
+        </form><?php
+    }
+    ?>
+
+    <!-- <form action="expirar_cookie.php">
         <button type="submit">Expirar</button>
-    </form>
+    </form> -->
 
     <?php if (comprobar_cookie()): ?>
         <div style="background-color: black; color: white; padding: 1em; margin: 5px 0px">
@@ -66,13 +87,13 @@
             <div>
                 <label for="nombre">Nombre: </label>
                 <input id="nombre" type="text" name="nombre"
-                       value="<?= $nombre ?>">
+                       value="<?= hh($nombre) ?>">
                 <label for="denominacion">Departamento: </label>
                 <input id="denominacion" type="text" name="denominacion"
-                       value="<?= $denominacion ?>">
+                       value="<?= hh($denominacion) ?>">
                 <label for="salario">Salario: </label>
                 <input id="salario" type="text" name="salario"
-                       value="<?= $salario ?>">
+                       value="<?= hh($salario) ?>">
             </div>
             <div>
                 <button type="submit">Filtrar</button>
@@ -95,11 +116,11 @@
                     // echo "<pre>"; print_r($fila); echo "</pre>";
                     ?>
                     <tr>
-                        <td><?= $fila['nombre'] ?></td>
-                        <td><?= $fila['fecha_alt'] ?></td>
-                        <td><?= $fila['salario'] ?></td>
-                        <td><?= $fila['denominacion'] ?></td>
-                        <td><?= $fila['localidad'] ?></td>
+                        <td><?= hh($fila['nombre']) ?></td>
+                        <td><?= hh($fila['fecha_alt']) ?></td>
+                        <td><?= hh($fila['salario']) ?></td>
+                        <td><?= hh($fila['denominacion']) ?></td>
+                        <td><?= hh($fila['localidad']) ?></td>
                         <td>
                             <form action="borrar.php" method="GET">
                                 <input type="hidden" name="id" value="<?= $fila['id'] ?>">
@@ -108,6 +129,10 @@
                             <form action="modificar.php" method="GET">
                                 <input type="hidden" name="id" value="<?= $fila['id'] ?>">
                                 <button type="submit">Modificar</button>
+                            </form>
+                            <form action="agregar.php" method="GET">
+                                <input type="hidden" name="id" value="<?= $fila['id'] ?>">
+                                <button type="submit">Añadir al carrito</button>
                             </form>
                         </td>
                     </tr>

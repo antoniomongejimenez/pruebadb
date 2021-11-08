@@ -1,3 +1,4 @@
+<?php session_start() ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,6 +35,7 @@
         return;
     }
     ?>
+    <?php cabecera() ?>
     <h3>¿Seguro que desea borrar el empleado?</h3>
     <form action="" method="POST">
         <input type="hidden" name="id" value="<?= $id ?>">
